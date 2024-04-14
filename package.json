@@ -1,0 +1,33 @@
+{
+  "name": "wasi-zigc",
+  "version": "0.1.0",
+  "description": "WASI support for zigc.wasm",
+  "type": "module",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Afirium/wasi-zigc.git"
+  },
+  "keywords": [
+    "wasi",
+    "zig"
+  ],
+  "author": "afirium",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Afirium/wasi-zigc/issues"
+  },
+  "homepage": "https://github.com/Afirium/wasi-zigc#readme",
+  "devDependencies": {
+    "@biomejs/biome": "1.6.4",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@bjorn3/browser_wasi_shim": "^0.3.0",
+    "but-unzip": "^0.1.4"
+  }
+}
