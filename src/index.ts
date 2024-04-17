@@ -105,5 +105,3 @@ export async function runZigOutput(output: ArrayBuffer, wasi?: WASI): Promise<WA
 
     return wasiObject;
 }
-
-export default WASI;
