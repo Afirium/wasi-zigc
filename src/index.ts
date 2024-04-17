@@ -41,7 +41,7 @@ export async function unZipStdLib(source: Uint8Array): Promise<Directory> {
 
 export async function initZigWASI(std: Uint8Array, zigCode: string, debug = false): Promise<WASI> {
     const args: string[] = [
-        "zig_small.wasm",
+        "zigc.wasm",
         "build-exe",
         "input.zig",
         "-Dtarget=wasm64-wasi",
@@ -72,40 +72,38 @@ export async function runZigCompiler(zigc: BufferSource, wasi: WASI): Promise<WA
         wasi_snapshot_preview1: wasi.wasiImport,
     });
 
-    try {
-        // @ts-ignore
-        wasi.start(instance);
-    } catch (err) {
-        console.log("[WASI Error]: ", err);
-    }
+    // @ts-ignore
+    wasi.start(instance);
 
     return wasi;
 }
 
-export async function runZigOutput(output: ArrayBuffer): Promise<WASI> {
+export async function runZigOutput(output: ArrayBuffer, wasi?: WASI): Promise<WASI> {
     const wasmComp = await WebAssembly.compile(output);
 
-    const args = ["input.wasm"];
-    const env: string[] = [];
-    const fds = [
-        new OpenFile(new File([])), // stdin
-        ConsoleStdout.lineBuffered((msg) => console.log(`[WASI stderr] ${msg}`)), // stdout
-        ConsoleStdout.lineBuffered((msg) => console.log(`[WASI stderr] ${msg}`)), // stderr
-        new PreopenDirectory(".", new Map([["input.wasm", new File(new Uint8Array(output))]])),
-    ];
-    const wasi = new WASI(args, env, fds);
+    let wasiObject: WASI;
 
-    const instInput = await WebAssembly.instantiate(wasmComp, {
-        wasi_snapshot_preview1: wasi.wasiImport,
-    });
-
-    try {
-        // @ts-ignore
-        wasi.start(instInput);
-    } catch (err) {
-        console.log("ERR: ", err);
-        // return new TextDecoder().decode(wasiInput.fds[1].file.data)
+    if (wasi) {
+        wasiObject = wasi;
+    } else {
+        const args = ["output.wasm"];
+        const env: string[] = [];
+        const fds = [
+            new OpenFile(new File([])), // stdin
+            ConsoleStdout.lineBuffered((msg) => console.log(`[WASI stdout] ${msg}`)), // stdout
+            ConsoleStdout.lineBuffered((msg) => console.log(`[WASI stderr] ${msg}`)), // stderr
+        ];
+        wasiObject = new WASI(args, env, fds, { debug: false });
     }
 
-    return wasi;
+    const instInput = await WebAssembly.instantiate(wasmComp, {
+        wasi_snapshot_preview1: wasiObject.wasiImport,
+    });
+
+    // @ts-ignore
+    wasiObject.start(instInput);
+
+    return wasiObject;
 }
+
+export default WASI;
