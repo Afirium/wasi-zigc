@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "WASI support for zigc.wasm",
   "type": "module",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
